@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  php:
+    build: ./docker/php
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      DATABASE_URL: "mysql://janoshik:janoshik@db:3306/janoshik?serverVersion=12.3.2-MariaDB&charset=utf8mb4"
+      REDIS_URL: "redis://redis:6379"
+      MESSENGER_TRANSPORT_DSN: "amqp://janoshik:janoshik@rabbitmq:5672/%2f/messages"
+
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  db:
+    image: mariadb:12.3.2
+    environment:
+      MARIADB_DATABASE: janoshik
+      MARIADB_USER: janoshik
+      MARIADB_PASSWORD: janoshik
+      MARIADB_ROOT_PASSWORD: janoshik
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_storage:/var/lib/mysql
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_storage:/data
+    command: redis-server --appendonly yes
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: janoshik
+      RABBITMQ_DEFAULT_PASS: janoshik
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_storage:/var/lib/rabbitmq
+
+volumes:
+  db_storage:
+  redis_storage:
+  rabbitmq_storage:

@@ -1,0 +1,31 @@
+parameters:
+    level: 6
+
+    paths:
+        - src
+        - tests
+
+    tmpDir: var/phpstan
+
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: true
+    checkExplicitMixed: true
+    checkImplicitMixed: true
+
+    inferPrivatePropertyTypeFromConstructor: true
+
+    excludePaths:
+        analyse:
+            - var/cache/*
+            - var/log/*
+            - vendor/*
+            - migrations/*
+            - public/bundles/*
+
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+
+    doctrine:
+        objectManagerLoader: tests/phpstan/object-manager.php
+
+    ignoreErrors: []

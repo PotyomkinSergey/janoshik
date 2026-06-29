@@ -1,0 +1,73 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Order #{{ order.id }} Details</h1>
+            <a href="{{ path('order_index') }}" class="btn btn-secondary">← Back to Orders</a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Items</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th class="ps-3">Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th class="text-end pe-3">Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in order.items %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <strong>{{ item.product.name }}</strong>
+                                        {% if item.product.description %}
+                                            <br><small class="text-muted">{{ item.product.description | slice(0, 100) }}...</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ item.price }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end pe-3">${{ (item.price * item.quantity) | number_format(2) }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Information</h5>
+                        <hr>
+                        <table class="table table-borderless table-sm mb-3">
+                            <tr>
+                                <th>Status:</th>
+                                <td><span class="badge bg-success">{{ order.status.value | capitalize }}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Date:</th>
+                                <td>{{ order.createdAt | date('Y-m-d H:i') }}</td>
+                            </tr>
+                        </table>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total Paid:</strong>
+                            <span class="h4 text-success">${{ order.totalPrice }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

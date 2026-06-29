@@ -1,0 +1,101 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Shopping Cart</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+
+        {% if items is empty %}
+            <div class="alert alert-warning">
+                Your cart is empty. <a href="{{ path('product_index') }}" class="alert-link">Browse products</a> to add them to your cart.
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-8">
+                    <table class="table align-middle">
+                        <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th style="width: 150px;">Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items %}
+                            {% set product = item.product %}
+                            <tr>
+                                <td>
+                                    <strong>{{ product.name }}</strong>
+                                    {% if product.description %}
+                                        <br><small class="text-muted">{{ product.description | slice(0, 100) }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td>${{ product.price }}</td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <form method="post" action="{{ path('cart_decrease', {id: product.id}) }}">
+                                            <button class="btn btn-outline-secondary" type="submit">-</button>
+                                        </form>
+                                        <input type="text" class="form-control text-center" value="{{ item.quantity }}" readonly>
+                                        <form method="post" action="{{ path('cart_add', {id: product.id}) }}">
+                                            <button class="btn btn-outline-secondary" type="submit" {% if product.stock <= item.quantity %}disabled title="No more stock"{% endif %}>+</button>
+                                        </form>
+                                    </div>
+                                    {% if product.stock <= item.quantity %}
+                                        <small class="text-danger">Max stock reached</small>
+                                    {% endif %}
+                                </td>
+                                <td>${{ item.subtotal | number_format(2) }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('cart_remove', {id: product.id}) }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Order Summary</h5>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <span class="h4 text-success">${{ total | number_format(2) }}</span>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <form method="post" action="{{ path('cart_confirm') }}">
+                                    <button type="submit" class="btn btn-success w-100 mb-2">Confirm Order</button>
+                                </form>
+                                <form method="post" action="{{ path('cart_decline') }}" onsubmit="return confirm('Are you sure you want to decline this order and empty your cart?')">
+                                    <button type="submit" class="btn btn-outline-danger w-100">Decline Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mt-3">
+            <a href="{{ path('product_index') }}" class="btn btn-secondary">← Back to Products</a>
+        </div>
+    </div>
+{% endblock %}

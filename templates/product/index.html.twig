@@ -1,0 +1,60 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Products</h1>
+            <a href="{{ path('product_add') }}" class="btn btn-success">+ New Product</a>
+        </div>
+
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>${{ product.price }}</td>
+                    <td>
+                        {% if product.stock > 0 %}
+                            <span class="badge bg-success">{{ product.stock }} in stock</span>
+                        {% else %}
+                            <span class="badge bg-danger">Out of stock</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.createdAt | date('Y-m-d') }}</td>
+                    <td>
+                        {% if product.stock > 0 %}
+                            <form method="post" action="{{ path('cart_add', {id: product.id}) }}" style="display:inline">
+                                <button class="btn btn-sm btn-primary">Add to Cart</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>Out of Stock</button>
+                        {% endif %}
+                        <a href="{{ path('product_show', {id: product.id}) }}" class="btn btn-sm btn-info">View</a>
+                        <a href="{{ path('product_edit', {id: product.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form method="post" action="{{ path('product_delete', {id: product.id}) }}" style="display:inline"
+                              onsubmit="return confirm('Delete this product?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-center">No products found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
